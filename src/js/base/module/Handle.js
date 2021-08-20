@@ -43,7 +43,7 @@ export default class Handle {
       '</div>',
     ].join('')).prependTo(this.$editingArea);
 
-    this.$handle.on('mousedown', (event) => {
+    this.$handle.on('mousedown touchstart', (event) => {
       if (dom.isControlSizing(event.target)) {
         event.preventDefault();
         event.stopPropagation();
@@ -54,18 +54,18 @@ export default class Handle {
 
         const onMouseMove = (event) => {
           this.context.invoke('editor.resizeTo', {
-            x: event.clientX - posStart.left,
-            y: event.clientY - (posStart.top - scrollTop),
+            x: ( event.targetTouches ? event.targetTouches[0].clientX : event.clientX ) - posStart.left,
+            y: ( event.targetTouches ? event.targetTouches[0].clientY : event.clientY ) - (posStart.top - scrollTop),
           }, $target, !event.shiftKey);
 
           this.update($target[0], event);
         };
 
         this.$document
-          .on('mousemove', onMouseMove)
-          .one('mouseup', (e) => {
+          .on('mousemove touchmove', onMouseMove)
+          .one('mouseup touchend', (e) => {
             e.preventDefault();
-            this.$document.off('mousemove', onMouseMove);
+            this.$document.off('mousemove touchmove', onMouseMove);
             this.context.invoke('editor.afterCommand');
           });
 
